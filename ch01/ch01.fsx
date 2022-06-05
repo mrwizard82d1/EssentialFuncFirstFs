@@ -4,7 +4,7 @@ type Customer = {
     IsRegistered : bool
 }
 
-let calculateTotal (customer: Customer) (spend: decimal): decimal =
+let calculateTotal (customer: Customer, spend: decimal): decimal =
     let discount =
         if customer.IsEligible && spend >= 100.0M
         then (spend * 0.1M)
