@@ -1,36 +1,40 @@
-type Customer = {
+type RegisteredCustomer = {
     Id: string
     IsEligible: bool
-    IsRegistered : bool
 }
 
-// Take advantage of type inference
-let calculateTotal customer spend =
-    let discount = 
-        if customer.IsEligible && spend >= 100.0M
-        then spend * 0.1M
-        else 0.0M
-    spend - discount
+type UnregisteredCustomer = {
+    Id: string
+}
 
-let john = {
+type Customer = 
+    | Registered  of RegisteredCustomer
+    | Guest of UnregisteredCustomer
+
+let calculateTotal customer spend =
+    let discounte = 
+        match customer with
+        | Registered c -> 
+            if c.IsEligible && spend >= 100.0M
+            then spend * 0.1M
+            else 0.0M
+        | Guest _ -> 0.0M
+    spend - discounte
+
+let john = Registered {
     Id = "John"
     IsEligible = true
-    IsRegistered = true
 }
-let mary = {
+let mary = Registered {
     Id = "Mary"
     IsEligible = true
-    IsRegistered = true
 }
-let richard = {
+let richard = Registered {
     Id = "Richard"
     IsEligible = false
-    IsRegistered = true
 }
-let sarah = {
+let sarah = Guest {
     Id = "Sarah"
-    IsEligible = false
-    IsRegistered = false
 }
 
 let assertJohn = (calculateTotal john 100.0M = 90.0M)
