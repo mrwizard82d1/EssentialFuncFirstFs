@@ -1,6 +1,5 @@
 type RegisteredCustomer = {
     Id: string
-    IsEligible: bool
 }
 
 type UnregisteredCustomer = {
@@ -8,34 +7,22 @@ type UnregisteredCustomer = {
 }
 
 type Customer = 
+    | EligibleRegistered of RegisteredCustomer
     | Registered  of RegisteredCustomer
     | Guest of UnregisteredCustomer
 
 let calculateTotal customer spend =
-    let discounte = 
+    let discount = 
         match customer with
-        | Registered c -> 
-            if c.IsEligible && spend >= 100.0M
-            then spend * 0.1M
-            else 0.0M
-        | Guest _ -> 0.0M
-    spend - discounte
+        | EligibleRegistered _ when spend >= 100.0M 
+            -> spend * 0.1M
+        | _ -> 0.0M
+    spend - discount
 
-let john = Registered {
-    Id = "John"
-    IsEligible = true
-}
-let mary = Registered {
-    Id = "Mary"
-    IsEligible = true
-}
-let richard = Registered {
-    Id = "Richard"
-    IsEligible = false
-}
-let sarah = Guest {
-    Id = "Sarah"
-}
+let john = EligibleRegistered { Id = "John" }
+let mary = EligibleRegistered { Id = "Mary" }
+let richard = Registered { Id = "Richard" }
+let sarah = Guest { Id = "Sarah" }
 
 let assertJohn = (calculateTotal john 100.0M = 90.0M)
 let assertMary = (calculateTotal mary 99.9M = 99.9M)
