@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "4gaZ5eUXjCdPi//ePPLlDr93pflNBObG0h2XRInQKTVnlIEwX4gcxh+GhVaIq8P03j7Zy04wwPhB9vi0P5pRHg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\larry.jones\\professional\\projects\\EssentialFuncFirstFs\\Ch01\\Ch01.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\larry.jones\\.nuget\\packages\\fsharp.core\\6.0.4\\fsharp.core.6.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}
