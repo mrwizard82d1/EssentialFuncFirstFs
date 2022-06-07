@@ -6,7 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs"/>
+        <Compile Include="Program.fs" />
+        <Content Include="apply-a-discount.feature" />
+        <None Include="Ch01.fsx" />
     </ItemGroup>
 
 </Project>

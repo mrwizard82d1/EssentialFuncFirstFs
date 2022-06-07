@@ -1,4 +1,4 @@
-Feature: appyling a discount
+Feature: applying a discount
 
 Scenario Outline: Eligible registered customers get 10% discount when they spend £100 or more
 
