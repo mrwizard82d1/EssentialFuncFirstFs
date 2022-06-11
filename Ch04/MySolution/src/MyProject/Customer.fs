@@ -39,16 +39,20 @@ module Domain =
 
     // CustomerId -> Result
     let upgradeCustomer customerId =
-        customerId
-        // To fix the two issues below, we remove the pipeline 
-        |> Db.tryGetCustomer
-        // This implementation has a problem. The previous function in the pipelien returns a 
-        // Result<Customer option, exn> but `convertToEligible` expects a `Customer`. In the 
-        // world of Scott Wlaschin, `Db.tryGetCustomer` moves from "normal world" to 
-        // "Result world," but `convertToEligible` is maps from "normal world" to "normal world."
-        // We need an "adapter block." 
-        |> convertToEligible
-        // Note that once we fix the issue with `convertToEligible` ("Result world" to 
-        // "Result world"), we will have a problem with `Db.saveCustomer` which maps from 
-        // "real world" to "Result world."
-        |> Db.saveCustomer
+        let getCustomerResult = Db.tryGetCustomer customerId
+        let converted = 
+            match getCustomerResult with
+            | Ok c ->
+                match c with 
+                | Some customer -> Some (convertToEligible customer)
+                | None -> None
+                |> Ok
+            | Error ex -> Error ex 
+        let output = 
+            match converted with
+            | Ok c -> 
+                match c with
+                | Some customer -> Db.saveCustomer customer
+                | None -> Ok ()
+            | Error ex -> Error ex
+        output
