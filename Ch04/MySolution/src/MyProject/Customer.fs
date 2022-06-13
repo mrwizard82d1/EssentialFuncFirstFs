@@ -32,6 +32,11 @@ module Db =
         | ex -> Error ex
 
 module Domain =
+    let trySaveCustomer customer =
+        match customer with
+        | Some c -> Db.saveCustomer c
+        | None -> Ok ()
+        
     // Customer -> Customer
     let convertToEligible customer =
         if not customer.IsEligible then { customer with IsEligible = true }
@@ -39,20 +44,26 @@ module Domain =
 
     // CustomerId -> Result
     let upgradeCustomer customerId =
-        let getCustomerResult = Db.tryGetCustomer customerId
-        let converted = 
-            match getCustomerResult with
-            | Ok c ->
-                match c with 
-                | Some customer -> Some (convertToEligible customer)
-                | None -> None
-                |> Ok
-            | Error ex -> Error ex 
-        let output = 
-            match converted with
-            | Ok c -> 
-                match c with
-                | Some customer -> Db.saveCustomer customer
-                | None -> Ok ()
-            | Error ex -> Error ex
-        output
+        customerId
+        |> Db.tryGetCustomer
+        |> Result.map (Option.map convertToEligible)
+        |> Result.bind trySaveCustomer 
+
+    let createCustomer customerId =
+        { CustomerId = customerId; IsRegistered = true; IsEligible = false; }
+        
+    // Wrap `createCustomer` because the Customer to be created may already exist
+    let tryCreateCustomer customerId (customer:Customer option) =
+        try
+            match customer with
+            | Some _ -> raise (exn $"Customer '{customerId}' already exists")
+            | None -> Ok (createCustomer customerId)
+        with
+        | ex -> Error ex
+        
+    let registerCustomer customerId =
+        customerId
+        |> Db.tryGetCustomer
+        |> Result.bind (tryCreateCustomer  customerId)
+        |> Db.saveCustomer // Problem
+        
