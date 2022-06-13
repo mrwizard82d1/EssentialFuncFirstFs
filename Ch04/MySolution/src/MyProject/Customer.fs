@@ -65,5 +65,5 @@ module Domain =
         customerId
         |> Db.tryGetCustomer
         |> Result.bind (tryCreateCustomer  customerId)
-        |> Db.saveCustomer // Problem
+        |> Result.bind Db.saveCustomer // Problem
         
