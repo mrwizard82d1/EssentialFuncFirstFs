@@ -3,6 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <RootNamespace>MyProjectTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CustomerTests.fs" />
