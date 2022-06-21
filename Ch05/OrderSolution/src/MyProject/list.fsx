@@ -92,10 +92,52 @@ let sumListItems items =
     |> List.sum
     
 let myLineItemSum = sumListItems lineItems
-
 // In this particular case, an easier way exists to perform the calculation in one step
 let easierSumLineItems items =
     items
     |> List.sumBy (fun (q, p) -> decimal q * p)
     
-let myEasierLineItemSum = easierSumLineItems lineItems   
+let myEasierLineItemSum = easierSumLineItems lineItems
+
+// Folding
+
+// The following function uses a version of `List.fold` that has a type of
+// `(decimal -> (int * decimal) -> decimal) -> decimal -> decimal`; that is, a function and a `decimal` value
+// and returns a `decimal` value where the function accepts a `decimal` value and a tuple of type,
+// `int` * `decimal`, and returns a `decimal` value.
+let getTotal items =
+    items
+    |> List.fold (fun acc (q, p) -> acc + decimal q * p) 0M
+    
+let total = getTotal lineItems
+
+// Although the book describes an alternative implementation of `List.fold` that accepts a "state" argument
+// consisting of the accumulator and the list to fold; I do not believe this overload still exists. Further,
+// I do not believe that the operator `||>` still exists.
+
+// Grouping Data and Uniqueness
+
+let myListWithDuplicates = [ 1; 2; 3; 4; 5; 7; 6; 5; 4; 3 ]
+
+// Transforms initial list into a list of tuples (key * int list) where `key` is every unique value in the
+// original list and `int list` is a list of all occurrences of key in the original list.
+let groupByResult = myListWithDuplicates |> List.groupBy id
+
+// Once grouped by each item in the list, we can use `List.map` to "extract" the keys
+let unique items =
+    items
+    |> List.groupBy id
+    |> List.map fst  // supplied function extracts the "key" (the first element of the tuple)
+    
+let uniqueResult = unique myListWithDuplicates
+
+// Although using the `groupBy` and `map` combination works, F# also provides `List.distinct`  that  does
+// all this work for us.
+let distinct = myListWithDuplicates |> List.distinct
+
+// Finally, the built-in type, `Set` provides similar functionality; however, `Set` sorts the keys.
+let uniqueSet items =
+    items
+    |> Set.ofList
+    
+let setResult = uniqueSet myListWithDuplicates
