@@ -7,7 +7,7 @@ type Customer = {
 
 // Calculates the net price. (That is, the price after applying
 // the discount(s).)
-let calculateTotal (customer: Customer) (spend: decimal) : decimal =
+let calculateTotal (customer: Customer, spend: decimal) : decimal =
     let discount =
         if customer.IsEligible && spend >= 100.00M then
             spend * 0.10M
