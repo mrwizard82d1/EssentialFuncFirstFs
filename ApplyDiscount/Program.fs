@@ -5,8 +5,7 @@ type Customer = {
     IsRegistered: bool
 }
 
-// Calculates the net price. (That is, the price after applying
-// the discount(s).)
+// Calculates the discount.
 let calculateTotal customer spend =
     let discount =
         if customer.IsEligible && spend >= 100.00M then
@@ -16,3 +15,11 @@ let calculateTotal customer spend =
     let total = spend - discount
     total
     
+// Create a customer and calculate their discount
+let john = {
+    Id = "John"
+    IsEligible = true
+    IsRegistered = true
+}
+
+let assertJohn = (calculateTotal john 100.00M = 90.00M)
