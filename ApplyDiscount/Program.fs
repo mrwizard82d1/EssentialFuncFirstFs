@@ -15,11 +15,13 @@ let calculateTotal customer spend =
     let total = spend - discount
     total
     
-// Create a customer and calculate their discount
-let john = {
-    Id = "John"
-    IsEligible = true
-    IsRegistered = true
-}
+// Create many customers and calculate their discounts
+let john = { Id = "John"; IsEligible = true; IsRegistered = true }
+let mary = { Id = "Mary"; IsEligible = true; IsRegistered = true }
+let richard = { Id = "Richard"; IsEligible = false; IsRegistered = true }
+let sarah = { Id = "Sarah"; IsEligible = false; IsRegistered = false }
 
 let assertJohn = (calculateTotal john 100.00M = 90.00M)
+let assertMary = (calculateTotal mary 99.00M = 99.00M)
+let assertRichard = (calculateTotal richard 100.00M = 100.00M)
+let assertSarah = (calculateTotal sarah 100.00M = 100.00M)
