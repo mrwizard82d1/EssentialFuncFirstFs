@@ -2,19 +2,21 @@
 //
 // Now we are going to model eligibility as a domain concept.
 
+// We modify (and simplify) our records for registered and unregistered customers.
+type RegisteredCustomer = { Id: string }
+
+type UnregisteredCustomer = { Id: string }
+
 // We model a Customer using a _discriminated union_. This modeling
 // captures the idea that a customer can be one of a(n):
 //
 // EligibleRegistered
 // Registered
 // Guest
-//
-// These types allow us to simplify our types. That is, we no longer
-// need the type definitions for registered and unregistered customers.
 type Customer =
-    | EligibleRegistered of Id: string
-    | Registered of Id: string
-    | Guest of Id: string
+    | EligibleRegistered of RegisteredCustomer
+    | Registered of RegisteredCustomer
+    | Guest of UnregisteredCustomer
 
 // Calculates the discount.
 //
@@ -28,10 +30,10 @@ let calculateTotal customer spend =
     spend - discount
     
 // Create many customers and calculate their discounts
-let john = EligibleRegistered "John"
-let mary = EligibleRegistered "Mary"
-let richard = Registered "Richard"
-let sarah = Guest "Sarah"
+let john = EligibleRegistered { Id = "John"}
+let mary = EligibleRegistered { Id = "Mary" }
+let richard = Registered { Id = "Richard" }
+let sarah = Guest { Id = "Sarah" }
 
 let assertJohn = (calculateTotal john 100.00M = 90.00M)
 let assertMary = (calculateTotal mary 99.00M = 99.00M)
