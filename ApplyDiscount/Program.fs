@@ -28,9 +28,7 @@ let calculateTotal customer spend =
         match customer with
         | Registered c when c.IsEligible && spend >= 100.00M ->
             spend * 0.10M
-        | Registered _ ->
-            0.00M
-        | Guest _ ->
+        | _ ->
             0.00M
     spend - discount
     
