@@ -1,28 +1,43 @@
 ﻿// Define a customer. A customer is a _AND_ type.
 //
 // This implementation allows an invalid state: a customer is eligible
-// but not registered. Our next commit will address this issues.
-type Customer = {
+// but not registered. Our next commit will address this issue.
+
+// We create distinct records for registered and unregistered customers.
+type RegisteredCustomer = {
     Id: string
     IsEligible: bool
-    IsRegistered: bool
 }
+
+type UnregisteredCustomer = {
+    Id: string
+}
+
+// We model a Customer using a _discriminated union_. This modeling
+// captures the idea that a customer can be either a registered
+// customer or a guest (**not both**).
+type Customer =
+    | Registered of RegisteredCustomer
+    | Guest of UnregisteredCustomer
 
 // Calculates the discount.
 let calculateTotal customer spend =
     let discount =
-        if customer.IsEligible && spend >= 100.00M then
-            spend * 0.10M
-        else
+        match customer with
+        | Registered c ->
+            if c.IsEligible && spend >= 100.00M then
+                spend * 0.10M
+            else
+                0.00M
+        | Guest _ ->
             0.00M
-    let total = spend - discount
-    total
+    spend - discount
     
 // Create many customers and calculate their discounts
-let john = { Id = "John"; IsEligible = true; IsRegistered = true }
-let mary = { Id = "Mary"; IsEligible = true; IsRegistered = true }
-let richard = { Id = "Richard"; IsEligible = false; IsRegistered = true }
-let sarah = { Id = "Sarah"; IsEligible = false; IsRegistered = false }
+let john = Registered { Id = "John"; IsEligible = true }
+let mary = Registered { Id = "Mary"; IsEligible = true }
+let richard = Registered { Id = "Richard"; IsEligible = false }
+let sarah = Guest { Id = "Sarah" }
 
 let assertJohn = (calculateTotal john 100.00M = 90.00M)
 let assertMary = (calculateTotal mary 99.00M = 99.00M)
