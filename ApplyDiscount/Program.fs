@@ -1,4 +1,7 @@
 ﻿// Define a customer. A customer is a _AND_ type.
+//
+// This implementation allows an invalid state: a customer is eligible
+// but not registered. Our next commit will address this issues.
 type Customer = {
     Id: string
     IsEligible: bool
