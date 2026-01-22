@@ -21,14 +21,15 @@ type Customer =
     | Guest of UnregisteredCustomer
 
 // Calculates the discount.
+//
+// Simplify the logic with a guard clause.
 let calculateTotal customer spend =
     let discount =
         match customer with
-        | Registered c ->
-            if c.IsEligible && spend >= 100.00M then
-                spend * 0.10M
-            else
-                0.00M
+        | Registered c when c.IsEligible && spend >= 100.00M ->
+            spend * 0.10M
+        | Registered _ ->
+            0.00M
         | Guest _ ->
             0.00M
     spend - discount
