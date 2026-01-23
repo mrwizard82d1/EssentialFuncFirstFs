@@ -1,4 +1,6 @@
-﻿type Customer = {
+﻿open System
+
+type Customer = {
     Id: int
     IsVip: bool
     Credit: decimal
@@ -68,3 +70,53 @@ let assertStdToVip =
 let assertStd =
     upgradeCustomerNested { customerStd with Id = 3; Credit = 50.0M } =
         { Id = 3; IsVip = false; Credit = 100.0M}
+
+// ### Unit
+
+// Defines a **function** that, when evaluated, return the current time.
+//
+// Although it appears that this function takes no arguments, it
+// actually takes **one** argument of type `unit`. 
+let now () = DateTime.UtcNow
+
+// Notice that the value `fixedNow` has a single, **unchanging** value.
+let fixedNow = DateTime.UtcNow
+fixedNow
+
+let do_nothing_log msg =
+    // Log a message or a similar task that **does not** return a value.
+    ()
+    
+// ### Partial application
+
+type LogLevel =
+    | Error
+    | Warning
+    | Info
+    
+let log (level: LogLevel) message =
+    printfn $"[%A{level}]: %s{message}"
+    ()
+    
+// Logs an error but waits for the message.
+let logError = log Error
+
+let m1 = log Error "Curried function"
+let m2 = log Error "Partially applied function"
+
+log Error "Curried function"
+logError "Partially applied function"
+
+// Suppressing the result (`unit`)
+logError "Error message" |> ignore
+
+// Remember that supplying arguments as **tuples** prevents partial application.
+let logTuple (level: LogLevel, message: string) =
+    printfn $"[%A{level}]: %s{message}"
+    ()
+    
+// Uncomment to see compiler error.
+// logTuple Error
+
+// Requires a tuple argument.
+logTuple (Error, "Partially applied function")
