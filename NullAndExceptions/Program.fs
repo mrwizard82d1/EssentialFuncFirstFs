@@ -44,25 +44,85 @@ let increaseCreditIfVip customer =
     | ex -> Error ex
     
 // Attempt to upgrade a customer
-let upgradeCustomer customer =
-    customer
-    |> getPurchases
-    // Compiler problem!
-    //
-    // The previous expression in the pipeline has the type,
-    // `Result<Customer * decimal, exn>`. However, `tryPromoteToVip`
-    // expects a `Customer` as input. Consequently, the compiler
-    // complains.
-    |> tryPromoteToVip // Compiler problem
-    |> increaseCreditIfVip
+// let upgradeCustomerBroke customer =
+//     customer
+//     |> getPurchases
+//     // Compiler problem!
+//     //
+//     // The previous expression in the pipeline has the type,
+//     // `Result<Customer * decimal, exn>`. However, `tryPromoteToVip`
+//     // expects a `Customer` as input. Consequently, the compiler
+//     // complains.
+//     |> tryPromoteToVip // Compiler problem
+//     |> increaseCreditIfVip
     
 let customerVip = { Id = 1; IsVip = true; Credit = 0.0M }
 let customerStandard = { Id = 2; IsVip = false; Credit = 100.0M }
 
-let assertVip = upgradeCustomer customerVip =
-    Ok { Id = 1; IsVip = true; Credit = 100.0M }
-let assertStandardToVip = upgradeCustomer customerStandard =
-    Ok { Id = 2; IsVip = true; Credit = 200.0M }
-let assertStandard = upgradeCustomer { customerStandard with Id = 3
-                                       Credit = 50.0M } =
-    Ok { Id = 3; IsVip = false; Credit = 100.0M }
+// let assertVip = upgradeCustomerBroke customerVip =
+//     Ok { Id = 1; IsVip = true; Credit = 100.0M }
+// let assertStandardToVip = upgradeCustomerBroke customerStandard =
+//     Ok { Id = 2; IsVip = true; Credit = 200.0M }
+// let assertStandard =
+//     upgradeCustomerBroke { customerStandard with Id = 3
+//                            Credit = 50.0M } =
+//     Ok { Id = 3; IsVip = false; Credit = 100.0M }
+
+// *** Higher order functions
+
+// Transforms a "one-track" function into a "two-track" function.
+let map oneTrackFunction resultInput =
+    match resultInput with
+    | Ok s -> Ok (oneTrackFunction s)
+    | Error f -> Error f
+    
+// let upgradeCustomerNotQuite customer =
+//     customer
+//     |> getPurchases
+//     |> map tryPromoteToVip
+//     |> increaseCreditIfVip
+    
+// let assertVip = upgradeCustomerNotQuite customerVip =
+//     Ok { Id = 1; IsVip = true; Credit = 100.0M }
+// let assertStandardToVip = upgradeCustomerNotQuite customerStandard =
+//     Ok { Id = 2; IsVip = true; Credit = 200.0M }
+// let assertStandard =
+//     upgradeCustomerNotQuite { customerStandard with Id = 3
+//                            Credit = 50.0M } =
+//     Ok { Id = 3; IsVip = false; Credit = 100.0M }
+
+// We now need to create a function that converts a "switch function"
+// into a `Result` function. It is similar to the `map` function.
+let bind switchFunction resultInput =
+    match resultInput with
+    | Ok s -> switchFunction s
+    | Error f -> Error f
+    
+let upgradeCustomerWorksButNotBest customer =
+    customer
+    |> getPurchases
+    |> map tryPromoteToVip
+    |> bind increaseCreditIfVip
+    
+let assertVipWorksButNotBest =
+    upgradeCustomerWorksButNotBest customerVip = Ok { Id = 1; IsVip = true; Credit = 100.0M }
+let assertStandardToVipWorksButNotBest =
+    upgradeCustomerWorksButNotBest customerStandard = Ok { Id = 2; IsVip = true; Credit = 200.0M }
+let assertStandardWorksButNotBest =
+    upgradeCustomerWorksButNotBest { customerStandard with Id = 3; Credit = 50.0M } =
+        Ok { Id = 3; IsVip = false; Credit = 100.0M }
+
+// And now for the best solution.
+let upgradeCustomerBest customer =
+    customer
+    |> getPurchases
+    |> Result.map tryPromoteToVip
+    |> Result.bind increaseCreditIfVip
+    
+let assertVipBest =
+    upgradeCustomerBest customerVip = Ok { Id = 1; IsVip = true; Credit = 100.0M }
+let assertStandardToVipBest =
+    upgradeCustomerBest customerStandard = Ok { Id = 2; IsVip = true; Credit = 200.0M }
+let assertStandardBest =
+    upgradeCustomerBest { customerStandard with Id = 3; Credit = 50.0M } =
+        Ok { Id = 3; IsVip = false; Credit = 100.0M }
