@@ -41,7 +41,7 @@ module Db =
         with
         | ex -> Error ex
         
-    let saveCustomer (customer: Customer) =
+    let saveCustomer (_customer: Customer) =
         try
             // Save customer
             Ok ()
@@ -86,5 +86,14 @@ module Domain =
             
         // Of course, we now have an error passing `convertedCustomer`
         // to `Db.saveCustomer`.
-        let result = Db.saveCustomer convertedCustomer
+        //
+        // Let's fix this error.
+        let result =
+            match convertedCustomer with
+            | Ok (Some c) ->
+                Db.saveCustomer c
+            | Ok None -> Ok()
+            | Error ex -> Error ex
         result 
+
+// Finally, the code in this file compiles without error.
