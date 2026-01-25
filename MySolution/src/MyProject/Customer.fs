@@ -56,9 +56,13 @@ module Domain =
         else
             customer
             
-    // This function contains an error that we will fix
+    // Let's fix this function.
+    //
+    // We start by expanding our pipeline and exposing the
+    // intermediate values.
     let upgradeCustomer customerId =
-        customerId
-        |> Db.tryGetCustomer
-        |> convertToEligible
-        |> Db.saveCustomer
+        let getCustomerResult = Db.tryGetCustomer customerId
+        // Here lies the problem.
+        let convertedCustomer = convertToEligible getCustomerResult
+        let result = Db.saveCustomer convertedCustomer
+        result 
