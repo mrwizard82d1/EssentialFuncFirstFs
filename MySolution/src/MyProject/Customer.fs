@@ -62,7 +62,29 @@ module Domain =
     // intermediate values.
     let upgradeCustomer customerId =
         let getCustomerResult = Db.tryGetCustomer customerId
-        // Here lies the problem.
-        let convertedCustomer = convertToEligible getCustomerResult
+        // Here lies the problem. Let's deconstruct the Result and
+        // the Option from `getCustomerResult`
+        // 
+        // The following code from the book produces a compiler
+        // error in F# 6. 
+        // let convertedCustomer =
+        //     match getCustomerResult with
+        //     | Ok c ->
+        //         match c with
+        //         | Some c ->
+        //             Some (convertToEligible c)
+        //         | None -> None
+        //     | Error ex -> Error ex
+            
+        // Google Gemini suggested the following code, which works.
+        // I think it has the same semantics but "we will see."
+        let convertedCustomer =
+            match getCustomerResult with
+            | Ok (Some c) -> Ok (Some (convertToEligible c))
+            | Ok None -> Ok None
+            | Error ex -> Error ex
+            
+        // Of course, we now have an error passing `convertedCustomer`
+        // to `Db.saveCustomer`.
         let result = Db.saveCustomer convertedCustomer
         result 
