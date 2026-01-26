@@ -49,20 +49,22 @@ module Db =
         | ex -> Error ex
             
 module Domain =
+
+    let trySaveCustomer customer =
+        match customer with
+        | Some c -> Db.saveCustomer c
+        | None -> Ok()
     
     let convertToEligible customer =
         if not customer.IsEligible then
             { customer with IsEligible = true }
         else
             customer
-
-    let trySaveCustomer customer =
-        match customer with
-        | Some c -> Db.saveCustomer c
-        | None -> Ok()
             
     let upgradeCustomer customerId =
-        let getCustomerResult = Db.tryGetCustomer customerId
-        let converted = Result.map (Option.map convertToEligible) getCustomerResult
-        let result = Result.bind trySaveCustomer converted
-        result 
+        // Implicitly returns the upgraded customer as a result of
+        // the pipeline
+        customerId
+        |> Db.tryGetCustomer
+        |> Result.map (Option.map convertToEligible)
+        |> Result.bind trySaveCustomer
