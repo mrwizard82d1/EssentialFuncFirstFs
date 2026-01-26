@@ -55,45 +55,22 @@ module Domain =
             { customer with IsEligible = true }
         else
             customer
+
+    let trySaveCustomer customer =
+        match customer with
+        | Some c -> Db.saveCustomer c
+        | None -> Ok()
             
-    // Let's fix this function.
-    //
-    // We start by expanding our pipeline and exposing the
-    // intermediate values.
     let upgradeCustomer customerId =
         let getCustomerResult = Db.tryGetCustomer customerId
-        // Here lies the problem. Let's deconstruct the Result and
-        // the Option from `getCustomerResult`
-        // 
-        // The following code from the book produces a compiler
-        // error in F# 6. 
-        // let convertedCustomer =
-        //     match getCustomerResult with
-        //     | Ok c ->
-        //         match c with
-        //         | Some c ->
-        //             Some (convertToEligible c)
-        //         | None -> None
-        //     | Error ex -> Error ex
-            
-        // Google Gemini suggested the following code, which works.
-        // I think it has the same semantics but "we will see."
-        let convertedCustomer =
+        let converted =
             match getCustomerResult with
             | Ok (Some c) -> Ok (Some (convertToEligible c))
             | Ok None -> Ok None
             | Error ex -> Error ex
             
-        // Of course, we now have an error passing `convertedCustomer`
-        // to `Db.saveCustomer`.
-        //
-        // Let's fix this error.
         let result =
-            match convertedCustomer with
-            | Ok (Some c) ->
-                Db.saveCustomer c
-            | Ok None -> Ok()
+            match converted with
+            | Ok c -> trySaveCustomer c
             | Error ex -> Error ex
         result 
-
-// Finally, the code in this file compiles without error.
