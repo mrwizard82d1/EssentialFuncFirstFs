@@ -69,8 +69,5 @@ module Domain =
             | Ok None -> Ok None
             | Error ex -> Error ex
             
-        let result =
-            match converted with
-            | Ok c -> trySaveCustomer c
-            | Error ex -> Error ex
+        let result = Result.bind trySaveCustomer converted
         result 
