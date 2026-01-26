@@ -63,11 +63,6 @@ module Domain =
             
     let upgradeCustomer customerId =
         let getCustomerResult = Db.tryGetCustomer customerId
-        let converted =
-            match getCustomerResult with
-            | Ok c ->
-                c |> Option.map convertToEligible |> Ok
-            | Error ex -> Error ex
-            
+        let converted = Result.map (Option.map convertToEligible) getCustomerResult
         let result = Result.bind trySaveCustomer converted
         result 
