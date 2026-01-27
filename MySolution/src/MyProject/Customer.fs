@@ -75,11 +75,20 @@ module Domain =
         IsEligible = false
     }
     
+    // We need to create a new function, `tryCreateCustomer` to integrate
+    // `Db.tryGetCustomer` and `createCustomer`.
+    let tryCreateCustomer customerId (customer: Customer option) =
+        try
+            match customer with
+            | Some _ -> raise (exn $"Customer '{customerId}' already exists.")
+            | None -> Ok (createCustomer customerId)
+        with
+        | ex -> Error ex
+    
     let registerCustomer customerId =
         customerId
         |> Db.tryGetCustomer
-        // We have a problem: the output of `Db.tryGetCustomer` is of
-        // type `Result<Customer option, exn>`, but `createCustomer`
-        // expects an unvarnished `Customer`.
-        |> createCustomer
+        |> Result.bind (tryCreateCustomer customerId)
+        // We have repaired the issues integrating `createCustomer`, but
+        // not `Db.saveCustomer` has an issue the result of the pipeline.
         |> Db.saveCustomer
