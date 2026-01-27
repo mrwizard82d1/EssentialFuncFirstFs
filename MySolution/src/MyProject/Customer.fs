@@ -89,6 +89,7 @@ module Domain =
         customerId
         |> Db.tryGetCustomer
         |> Result.bind (tryCreateCustomer customerId)
-        // We have repaired the issues integrating `createCustomer`, but
-        // not `Db.saveCustomer` has an issue the result of the pipeline.
-        |> Db.saveCustomer
+        // Since `tryCreateCustomer` returns a `Customer` on the Ok track
+        // and `Db.saveCustomer` expects a `Customer`, we can simply use
+        // `Result.bind` to address repair the issue.
+        |> Result.bind Db.saveCustomer
