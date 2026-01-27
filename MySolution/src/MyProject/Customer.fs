@@ -68,3 +68,18 @@ module Domain =
         |> Db.tryGetCustomer
         |> Result.map (Option.map convertToEligible)
         |> Result.bind trySaveCustomer
+
+    let createCustomer customerId = {
+        CustomerId = customerId
+        IsRegistered = true
+        IsEligible = false
+    }
+    
+    let registerCustomer customerId =
+        customerId
+        |> Db.tryGetCustomer
+        // We have a problem: the output of `Db.tryGetCustomer` is of
+        // type `Result<Customer option, exn>`, but `createCustomer`
+        // expects an unvarnished `Customer`.
+        |> createCustomer
+        |> Db.saveCustomer
