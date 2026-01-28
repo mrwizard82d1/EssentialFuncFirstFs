@@ -115,3 +115,51 @@ let sumOverTupleItems = sumTupleItems originalItems
 
 let sumOverTupleItemsUsingSumBy =
     originalItems |> List.sumBy (fun (q, p) -> decimal q * p)
+
+// ## Folding
+
+let getTotal items =
+    items |>
+    List.fold (fun acc (q, p) -> acc + decimal q * p) 0M
+    
+let total = getTotal originalItems
+
+let getTotalAlternateStyle items =
+    (0M, items) ||> List.fold (fun acc (q, p) -> acc + decimal q * p)
+    
+let totalAlternateStyle = getTotalAlternateStyle originalItems
+
+// ## Grouping Data and Uniqueness
+
+// F# provides many ways to get unique numbers from a list.
+
+let myListNotUnique = [ 1; 2; 3; 4; 5; 7; 6; 5; 4; 3 ]
+
+let gbResult = myListNotUnique |> List.groupBy (fun x -> x)
+// let gbResult = myListNotUnique |> List.groupBy id
+
+// Now that we have this list, we can use `List.map` to create a list
+// of unique values.
+let uniqueValues items =
+    items
+    |> List.groupBy id
+    |> List.map (fun (i, _) -> i)
+// let uniqueValues items =
+//     items
+//     |> List.groupBy id
+//     |> List.map fst
+
+let uniqueResult = uniqueValues myListNotUnique
+
+// Although we can make this calculating using both `groupBy` and `map`,
+// the `List` module provides `List.distinct` which does exactly what
+// we want.
+let uniqueResultDistinct = myListNotUnique |> List.distinct
+
+// As another alternative, we could use a `Set`.
+
+let uniqueResultUsingSet items =
+    items
+    |> Set.ofList
+    
+let uniqueResultSet = uniqueResultUsingSet myListNotUnique
